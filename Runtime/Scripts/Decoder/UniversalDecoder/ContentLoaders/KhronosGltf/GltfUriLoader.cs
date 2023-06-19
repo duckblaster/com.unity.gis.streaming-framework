@@ -8,6 +8,8 @@ using Unity.Mathematics;
 
 using GltfMaterial = GLTFast.Schema.Material;
 using GltfSampler = GLTFast.Schema.Sampler;
+using GLTFast.Materials;
+using GLTFast.Logging;
 
 namespace Unity.Geospatial.Streaming.UniversalDecoder
 {
@@ -107,7 +109,7 @@ namespace Unity.Geospatial.Streaming.UniversalDecoder
             /// <param name="gltfMaterial">Source glTF material</param>
             /// <param name="gltf">Interface to a loaded glTF's resources (e.g. textures)</param>
             /// <returns><see langword="null"/></returns>
-            public Material GenerateMaterial(GltfMaterial gltfMaterial, IGltfReadable gltf)
+            public Material GenerateMaterial(GltfMaterial gltfMaterial, IGltfReadable gltf, bool pointsSupport = false)
             {
                 return null;
             }
@@ -116,7 +118,7 @@ namespace Unity.Geospatial.Streaming.UniversalDecoder
             /// Get fallback material that is assigned to nodes without a material.
             /// </summary>
             /// <returns><see langword="null"/></returns>
-            public Material GetDefaultMaterial()
+            public Material GetDefaultMaterial(bool pointsSupport = false)
             {
                 return null;
             }
@@ -269,10 +271,10 @@ namespace Unity.Geospatial.Streaming.UniversalDecoder
 
             return new ImportSettings
             {
-                generateMipMaps = m_TextureSettings.generateMipMaps,
-                defaultMinFilterMode = minFilter,
-                defaultMagFilterMode = magFilter,
-                anisotropicFilterLevel = m_TextureSettings.anisotropicFilterLevel
+                GenerateMipMaps = m_TextureSettings.generateMipMaps,
+                DefaultMinFilterMode = minFilter,
+                DefaultMagFilterMode = magFilter,
+                AnisotropicFilterLevel = m_TextureSettings.anisotropicFilterLevel
             };
         }
 
@@ -315,7 +317,7 @@ namespace Unity.Geospatial.Streaming.UniversalDecoder
                                                                     m_Lighting,
                                                                     metadata);
 
-            if (gltFast.InstantiateScene(instantiator))
+            if (await gltFast.InstantiateSceneAsync(instantiator))
             {
                 InstanceID instance = instantiator.AllocateInstance();
                 m_LoadedInstances.Add(instance, instantiator);

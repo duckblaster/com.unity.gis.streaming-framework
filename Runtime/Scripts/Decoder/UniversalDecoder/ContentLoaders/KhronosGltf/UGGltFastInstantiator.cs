@@ -5,6 +5,7 @@ using UnityEngine;
 using UnityEngine.Assertions;
 using Unity.Geospatial.HighPrecision;
 using Unity.Mathematics;
+using System;
 
 namespace Unity.Geospatial.Streaming.UniversalDecoder
 {
@@ -113,7 +114,7 @@ namespace Unity.Geospatial.Streaming.UniversalDecoder
         /// <param name="name">Name of the scene</param>
         /// <param name="nodeIndices">Indices of root level nodes in scene</param>
         /// <param name="animationClips">Apply those animation on the instances.</param>
-        public void AddScene(string name, uint[] nodeIndices, AnimationClip[] animationClips)
+        public void AddScene(string name, uint[] nodeIndices)
         {
             //
             //  TODO - Implement support for animation clips
@@ -133,10 +134,12 @@ namespace Unity.Geospatial.Streaming.UniversalDecoder
         /// Called for every Node in the glTF file
         /// </summary>
         /// <param name="nodeIndex">Index of node. Serves as identifier.</param>
+        /// <param name="parentIndex">Index of the parent's node. If it's null,
+        /// the node's a root-level node</param>
         /// <param name="position">Node's local position in hierarchy</param>
         /// <param name="rotation">Node's local rotation in hierarchy</param>
         /// <param name="scale">Node's local scale in hierarchy</param>
-        public void CreateNode(uint nodeIndex, Vector3 position, Quaternion rotation, Vector3 scale)
+        public void CreateNode(uint nodeIndex, uint? parentIndex, Vector3 position, Quaternion rotation, Vector3 scale)
         {
             InstanceData node = new InstanceData(m_DataSource, HPMath.TRS(new double3(position.x, position.y, position.z), rotation, scale), MeshID.Null, null)
             {
@@ -256,11 +259,11 @@ namespace Unity.Geospatial.Streaming.UniversalDecoder
             //  Alpha Mode
             //
             MaterialAlphaMode alphaMode = MaterialAlphaMode.Opaque;
-            if (gltfMaterial.alphaModeEnum == GLTFast.Schema.Material.AlphaMode.BLEND)
+            if (gltfMaterial.GetAlphaMode() == GLTFast.Schema.Material.AlphaMode.Blend)
             {
                 alphaMode = MaterialAlphaMode.Transparent;
             }
-            else if (gltfMaterial.alphaModeEnum == GLTFast.Schema.Material.AlphaMode.MASK)
+            else if (gltfMaterial.GetAlphaMode() == GLTFast.Schema.Material.AlphaMode.Mask)
             {
                 alphaMode = MaterialAlphaMode.AlphaClip;
             }
@@ -273,7 +276,7 @@ namespace Unity.Geospatial.Streaming.UniversalDecoder
                 //
                 //  Add Color Component
                 //
-                m_CommandStack.AddMaterialProperty(result, MaterialProperty.AlbedoColor(gltfMaterial.pbrMetallicRoughness.baseColor));
+                m_CommandStack.AddMaterialProperty(result, MaterialProperty.AlbedoColor(gltfMaterial.pbrMetallicRoughness.BaseColor));
 
                 //
                 //  Add Albedo Texture
@@ -294,7 +297,7 @@ namespace Unity.Geospatial.Streaming.UniversalDecoder
                 //
                 //  Alpha Test
                 //
-                if (gltfMaterial.alphaModeEnum == GLTFast.Schema.Material.AlphaMode.MASK)
+                if (gltfMaterial.GetAlphaMode() == GLTFast.Schema.Material.AlphaMode.Mask)
                 {
                     m_CommandStack.AddMaterialProperty(result, MaterialProperty.AlphaCutoff(gltfMaterial.alphaCutoff));
                 }
@@ -402,6 +405,22 @@ namespace Unity.Geospatial.Streaming.UniversalDecoder
         public void AddCamera(uint nodeIndex, uint cameraIndex)
         {
             Debug.LogWarning("GLTF file contains camera. The streaming framework will ignore it.");
+        }
+
+        public void BeginScene(string name, uint[] rootNodeIndices)
+        {
+        }
+
+        public void AddAnimation(AnimationClip[] animationClips)
+        {
+        }
+
+        public void AddLightPunctual(uint nodeIndex, uint lightIndex)
+        {
+        }
+
+        public void EndScene(uint[] rootNodeIndices)
+        {
         }
     }
 }

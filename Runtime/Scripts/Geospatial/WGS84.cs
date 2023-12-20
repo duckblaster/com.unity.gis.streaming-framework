@@ -39,7 +39,7 @@ namespace Unity.Geospatial.Streaming
             return GeodeticToXzyEcef(new GeodeticCoordinates(latitude, longitude, elevation));
         }
 
-        internal static double3 GeodeticToXzyEcef(GeodeticCoordinates coords)
+        public static double3 GeodeticToXzyEcef(GeodeticCoordinates coords)
         {
             TrigonometricRatios ratios = new TrigonometricRatios(coords);
             return GeodeticToXzyEcef(in ratios, coords.Elevation);

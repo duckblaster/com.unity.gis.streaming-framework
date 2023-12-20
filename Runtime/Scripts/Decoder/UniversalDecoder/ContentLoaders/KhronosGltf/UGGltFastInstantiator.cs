@@ -6,6 +6,7 @@ using UnityEngine.Assertions;
 using Unity.Geospatial.HighPrecision;
 using Unity.Mathematics;
 using System;
+using GLTFast;
 
 namespace Unity.Geospatial.Streaming.UniversalDecoder
 {
@@ -235,7 +236,7 @@ namespace Unity.Geospatial.Streaming.UniversalDecoder
             }
             else
             {
-                GLTFast.Schema.Material gltfMaterial = m_Gltf.GetSourceMaterial(materialIndex);
+                GLTFast.Schema.MaterialBase gltfMaterial = m_Gltf.GetSourceMaterial(materialIndex);
 
                 Assert.IsNotNull(gltfMaterial);
 
@@ -243,11 +244,11 @@ namespace Unity.Geospatial.Streaming.UniversalDecoder
             }
         }
 
-        private MaterialID GenerateMaterial(GLTFast.Schema.Material gltfMaterial)
+        private MaterialID GenerateMaterial(GLTFast.Schema.MaterialBase gltfMaterial)
         {
             bool isLit = m_Lighting switch
             {
-                UGLighting.Default => (gltfMaterial.extensions?.KHR_materials_unlit == null),
+                UGLighting.Default => (gltfMaterial.Extensions?.KHR_materials_unlit == null),
                 UGLighting.Lit => true,
                 UGLighting.Unlit => false,
                 _ => throw new System.NotImplementedException()
@@ -271,17 +272,17 @@ namespace Unity.Geospatial.Streaming.UniversalDecoder
             MaterialType type = new MaterialType(lighting, alphaMode);
             MaterialID result = m_CommandStack.AllocateMaterial(type);
 
-            if (gltfMaterial.pbrMetallicRoughness != null)
+            if (gltfMaterial.PbrMetallicRoughness != null)
             {
                 //
                 //  Add Color Component
                 //
-                m_CommandStack.AddMaterialProperty(result, MaterialProperty.AlbedoColor(gltfMaterial.pbrMetallicRoughness.BaseColor));
+                m_CommandStack.AddMaterialProperty(result, MaterialProperty.AlbedoColor(gltfMaterial.PbrMetallicRoughness.BaseColor));
 
                 //
                 //  Add Albedo Texture
                 //
-                GLTFast.Schema.TextureInfo textureInfo = gltfMaterial.pbrMetallicRoughness.baseColorTexture;
+                GLTFast.Schema.TextureInfoBase textureInfo = gltfMaterial.PbrMetallicRoughness.BaseColorTexture;
                 MappedTexture albedo = TryGetTexture(textureInfo, m_Gltf);
                 if (albedo.Texture != null)
                 {
@@ -292,7 +293,7 @@ namespace Unity.Geospatial.Streaming.UniversalDecoder
                 //
                 //  Smoothness
                 //
-                m_CommandStack.AddMaterialProperty(result, MaterialProperty.Smoothness(1.0f - gltfMaterial.pbrMetallicRoughness.roughnessFactor));
+                m_CommandStack.AddMaterialProperty(result, MaterialProperty.Smoothness(1.0f - gltfMaterial.PbrMetallicRoughness.roughnessFactor));
 
                 //
                 //  Alpha Test
@@ -328,7 +329,7 @@ namespace Unity.Geospatial.Streaming.UniversalDecoder
             return result;
         }
 
-        private static Vector4 GetTextureTransform(GLTFast.Schema.TextureInfo textureInfo, bool flipY = false)
+        private static Vector4 GetTextureTransform(GLTFast.Schema.TextureInfoBase textureInfo, bool flipY = false)
         {
             // Scale (x,y) and Transform (z,w)
             Vector4 textureSt = new Vector4(
@@ -336,9 +337,9 @@ namespace Unity.Geospatial.Streaming.UniversalDecoder
                 0, 0 // transform
                 );
 
-            if (textureInfo?.extensions?.KHR_texture_transform != null)
+            if (textureInfo?.Extensions?.KHR_texture_transform != null)
             {
-                var tt = textureInfo.extensions.KHR_texture_transform;
+                var tt = textureInfo.Extensions.KHR_texture_transform;
                 if (tt.texCoord != 0)
                 {
                     Debug.LogError(k_MultipleUVsNotSupported);
@@ -369,7 +370,7 @@ namespace Unity.Geospatial.Streaming.UniversalDecoder
 
         }
 
-        private static MappedTexture TryGetTexture(GLTFast.Schema.TextureInfo textureInfo, GLTFast.IGltfReadable gltf)
+        private static MappedTexture TryGetTexture(GLTFast.Schema.TextureInfoBase textureInfo, GLTFast.IGltfReadable gltf)
         {
             if (textureInfo != null && textureInfo.index >= 0)
             {
@@ -420,6 +421,14 @@ namespace Unity.Geospatial.Streaming.UniversalDecoder
         }
 
         public void EndScene(uint[] rootNodeIndices)
+        {
+        }
+
+        public void AddPrimitive(uint nodeIndex, string meshName, MeshResult meshResult, uint[] joints = null, uint? rootJoint = null, float[] morphTargetWeights = null, int primitiveNumeration = 0)
+        {
+        }
+
+        public void AddPrimitiveInstanced(uint nodeIndex, string meshName, MeshResult meshResult, uint instanceCount, NativeArray<Vector3>? positions, NativeArray<Quaternion>? rotations, NativeArray<Vector3>? scales, int primitiveNumeration = 0)
         {
         }
     }

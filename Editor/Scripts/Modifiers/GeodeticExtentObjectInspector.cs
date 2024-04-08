@@ -169,6 +169,7 @@ namespace Unity.Geospatial.Streaming.Editor
         /// Enables the Editor to handle an event in the Scene view.
         /// </summary>
         /// <param name="sceneView">The scene view where to draw the handles of the extent.</param>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Type Safety", "UNT0006:Incorrect message signature", Justification = "Not used as Unity message")]
         private void OnSceneGUI(SceneView sceneView)
         {
             OnSceneGUI(sceneView.camera);
@@ -178,6 +179,7 @@ namespace Unity.Geospatial.Streaming.Editor
         /// Enables the Editor to handle an event in the Scene view.
         /// </summary>
         /// <param name="camera">The active camera used as the point of view.</param>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Type Safety", "UNT0006:Incorrect message signature", Justification = "Not used as Unity message")]
         internal void OnSceneGUI(Camera camera)
         {
             SceneWrapper ??= new SceneHandleWrapper();
@@ -198,7 +200,7 @@ namespace Unity.Geospatial.Streaming.Editor
             if (m_WorldPoints == null || m_WorldPoints.Length != m_SceneExtent.Count)
                 m_WorldPoints = new Vector3[m_SceneExtent.Count];
 
-            HPNode node = FindObjectOfType<HPRoot>();
+            HPNode node = FindAnyObjectByType<HPRoot>();
             double4x4 worldFromParent = node != null ? node.WorldMatrix : double4x4.identity;
             double4x4 parentFromWorld = math.inverse(worldFromParent);
 

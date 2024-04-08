@@ -329,7 +329,7 @@ namespace Unity.Geospatial.Streaming
             float height = (float)(math.length(m_Transform.UniversePosition) - m_PlanetRadius);
             float viewDistance = math.clamp(height, 10.0f, 10000.0f);
 
-            m_Camera.nearClipPlane = 0.1f * viewDistance;
+            //m_Camera.nearClipPlane = 0.1f * viewDistance;
             m_Camera.farClipPlane = 1000000.0f * viewDistance;
         }
     }

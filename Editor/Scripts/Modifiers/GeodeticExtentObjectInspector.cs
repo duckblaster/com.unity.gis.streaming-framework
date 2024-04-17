@@ -66,15 +66,8 @@ namespace Unity.Geospatial.Streaming.Editor
             
             GUILayoutWrapper ??= new EditorGUILayoutWrapper();
 
-            OnEnable(serializedObject.targetObject as GeodeticExtentObject);
-        }
+            GeodeticExtentObject target = (GeodeticExtentObject)serializedObject.targetObject;
 
-        /// <summary>
-        /// This function is called when the object is loaded.
-        /// </summary>
-        /// <param name="target">Draw the values of this instance.</param>
-        internal void OnEnable(GeodeticExtentObject target)
-        {
             Assert.IsNotNull(target);
 
             target.Points ??= new List<double2>();

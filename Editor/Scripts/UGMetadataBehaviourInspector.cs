@@ -126,22 +126,16 @@ namespace Unity.Geospatial.Streaming.Editor
         private void OnSceneGUI()
         {
             SceneWrapper = new SceneHandleWrapper();
-            
-            OnSceneGUI(serializedObject.targetObject as UGMetadataBehaviour);
-        }
 
-        /// <summary>
-        /// Called when a <see cref="UGMetadataBehaviour"/> is selected and must be displayed in the scene view.
-        /// </summary>
-        internal void OnSceneGUI(UGMetadataBehaviour target)
-        {
+            UGMetadataBehaviour target = (UGMetadataBehaviour)serializedObject.targetObject;
+
             HPTransform hpTransform = target.GetComponent<HPTransform>();
 
             Dictionary<string, object> properties = target.Metadata?.Properties;
-            
-            if (properties != null 
-                && hpTransform != null 
-                && properties.TryGetValue(MetadataKeys.Bounds, out object boundsObject) 
+
+            if (properties != null
+                && hpTransform != null
+                && properties.TryGetValue(MetadataKeys.Bounds, out object boundsObject)
                 && boundsObject is SerializableDoubleBounds boundsSerialized)
             {
                 double4x4 worldFromLocal = target.transform.localToWorldMatrix.ToDouble4x4();
